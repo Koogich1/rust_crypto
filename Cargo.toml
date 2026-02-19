@@ -1,0 +1,17 @@
+[package]
+name = "axum-tracing-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.8.1"
+log = "0.4.24"
+diesel = { version = "2.2.0", features = ["postgres"] }
+routes = "0.1.0"
+serde = { version = "1.0.216", features = ["derive"] }
+tokio = { version = "1.43.0", features = ["full"] }
+tower = "0.5.2"
+tower-http = {version = "0.6.2", features = ["trace"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features=["env-filter"] }
+dotenvy = "0.15"
