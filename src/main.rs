@@ -5,13 +5,24 @@ use std::net::SocketAddr;
 use tokio;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
+use diesel::prelude::*;
+use std::env;
+
 #[derive(Debug, Serialize, Deserialize)]
+
 struct Message {
     content: String,
 }
 
 #[tokio::main]
 async fn main() {
+    dotenvy::dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url));
+
     tracing_subscriber::fmt()
         .with_env_filter(
             EnvFilter::try_from_default_env()
@@ -21,8 +32,6 @@ async fn main() {
         .init();
 
     let app = Router::new()
-        // .merge(routes::health::router())
-        // .merge(routes::convert::router())
         .layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
