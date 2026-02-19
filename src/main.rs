@@ -1,4 +1,9 @@
-use axum::{Router};
+mod schema;
+mod models;
+mod db;
+mod routers;
+
+use axum::{Extension, Router};
 use log::info;
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
@@ -6,6 +11,8 @@ use tokio;
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 use diesel::prelude::*;
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::PgConnection;
 use std::env;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,7 +38,15 @@ async fn main() {
         )
         .init();
 
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    let pool = Pool::builder()
+        .max_size(10) 
+        .build(manager)
+        .expect("Failed to create pool");
+
     let app = Router::new()
+        .merge(routers::coins::route_coin::routes()) 
+        .layer(Extension(pool))
         .layer(TraceLayer::new_for_http());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 axum = "0.8.1"
 log = "0.4.24"
-diesel = { version = "2.1", features = ["postgres", "uuid", "numeric", "chrono"] }
-uuid = { version = "1.0", features = ["v4"] }
+diesel = { version = "2.1", features = ["postgres", "r2d2", "uuid", "numeric", "chrono"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
 bigdecimal = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 routes = "0.1.0"
