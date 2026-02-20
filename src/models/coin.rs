@@ -2,9 +2,9 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use crate::schema::coins;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Queryable, Identifiable, Debug, Serialize)]
+#[derive(Queryable, Identifiable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = coins)]
 #[diesel(primary_key(id))]
 pub struct Coin {

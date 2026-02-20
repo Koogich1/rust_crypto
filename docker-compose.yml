@@ -10,6 +10,19 @@ services:
       POSTGRES_DB: simple_api
     volumes:
       - pg_data:/var/lib/postgresql/data
+      
+  db_test:
+    image: postgres:15
+    container_name: simple_api_db_test
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: simple_api_test
+    volumes:
+      - pg_data_test:/var/lib/postgresql/data
 
 volumes:
   pg_data:
+  pg_data_test:
