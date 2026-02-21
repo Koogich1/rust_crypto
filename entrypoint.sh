@@ -9,9 +9,15 @@ until pg_isready -h db -U "$DB_USER" > /dev/null 2>&1; do
   sleep 2
 done
 
-# Применяем миграции через diesel
 export PGPASSWORD="$DB_PASSWORD"
-diesel migration run --database-url="postgres://$DB_USER:$DB_PASSWORD@db:5432/$DB_NAME"
+
+# Применяем миграции через psql
+for migration in migrations/*/up.sql; do
+  if [ -f "$migration" ]; then
+    echo "📄 Applying $(basename $migration)..."
+    psql -h db -U "$DB_USER" -d "$DB_NAME" -f "$migration" || true
+  fi
+done
 
 echo "✅ Migrations complete!"
 
