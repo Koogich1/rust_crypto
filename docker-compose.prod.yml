@@ -11,6 +11,11 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - crypto_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-crypto_user} -d ${DB_NAME:-crypto_api}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
@@ -43,21 +48,24 @@ services:
       CRYPTO_API_KEY: ${CRYPTO_API_KEY:-}
       API_SECRET_TOKEN: ${API_SECRET_TOKEN:-}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - crypto_network
     deploy:
       resources:
         limits:
+          cpus: '0.75'
           memory: 512M
         reservations:
+          cpus: '0.25'
           memory: 256M
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 60s
 
 volumes:
   pg_data:
