@@ -1,5 +1,4 @@
-# Multi-stage build - собираем на сервере
-FROM rust:1.88-slim-bookworm AS builder
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
 
 WORKDIR /app
 

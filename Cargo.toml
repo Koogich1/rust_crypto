@@ -1,5 +1,5 @@
 [package]
-name = "axum-tracing-example"
+name = "crypto-aggregator"
 version = "0.1.0"
 edition = "2021"
 

@@ -170,29 +170,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "axum-tracing-example"
-version = "0.1.0"
-dependencies = [
- "axum",
- "axum-test",
- "bigdecimal",
- "chrono",
- "diesel",
- "dotenvy",
- "log",
- "reqwest",
- "routes",
- "serde",
- "serde_json",
- "tokio",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -423,6 +400,29 @@ name = "crossbeam-utils"
 version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
+
+[[package]]
+name = "crypto-aggregator"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "axum-test",
+ "bigdecimal",
+ "chrono",
+ "diesel",
+ "dotenvy",
+ "log",
+ "reqwest",
+ "routes",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
 
 [[package]]
 name = "darling"
