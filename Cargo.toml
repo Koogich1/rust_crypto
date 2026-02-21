@@ -7,9 +7,9 @@ edition = "2021"
 axum = "0.8.1"
 axum-test = "18.7.0"
 log = "0.4.24"
-diesel = { version = "2.1", features = ["postgres", "r2d2", "uuid", "numeric", "chrono"] }
+diesel = { version = "2.1", features = ["postgres", "r2d2", "uuid", "chrono", "numeric"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
-bigdecimal = "0.4"
+bigdecimal = { version = "0.4", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 routes = "0.1.0"
 serde = { version = "1.0.216", features = ["derive"] }
