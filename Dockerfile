@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     libssl-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY Cargo.toml Cargo.lock ./
@@ -19,7 +20,7 @@ COPY diesel.toml ./
 
 RUN cargo build --release
 
-# Устанавливаем diesel CLI и запускаем миграции
+# Ставим diesel CLI
 RUN cargo install diesel_cli --no-default-features --features postgres
 
 FROM debian:bookworm-slim
@@ -29,16 +30,20 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libssl3 \
+    libpq5 \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -r -u 1000 appuser
 
 COPY --from=builder --chown=appuser:appuser /app/target/release/axum-tracing-example /app/server
 COPY --from=builder --chown=appuser:appuser /usr/local/cargo/bin/diesel /usr/local/bin/diesel
 COPY --chown=appuser:appuser migrations ./migrations
+COPY --chown=appuser:appuser entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
 
 USER appuser
 
 EXPOSE 3000
 
-# Запускаем миграции перед стартом приложения
-ENTRYPOINT ["/bin/sh", "-c", "diesel migration run && /app/server"]
+ENTRYPOINT ["/entrypoint.sh"]
