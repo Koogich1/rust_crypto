@@ -4,6 +4,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 use bigdecimal::{BigDecimal, FromPrimitive};
 use chrono::Utc;
+use std::env;
 
 use crate::db::DbPool;
 use crate::models::price_snapshot::NewPriceSnapshot;
@@ -60,19 +61,23 @@ pub fn start_price_aggregator(pool: Arc<DbPool>) {
             return;
         }
 
+        let has_api_key = env::var("CRYPTO_API_KEY").is_ok();
+        let interval_secs = if has_api_key { 10 } else { 60 };
+        tracing::info!("🔑 API key present: {}. Using {}s interval.", has_api_key, interval_secs);
+
         loop {
             tracing::info!("🔄 Starting price aggregation cycle...");
-            
+
             let coins_list: Vec<(Uuid, String)> = {
                 let mut conn = match pool.get() {
                     Ok(conn) => conn,
                     Err(e) => {
                         tracing::error!("❌ Failed to get DB connection: {}", e);
-                        time::sleep(Duration::from_secs(10)).await;
+                        time::sleep(Duration::from_secs(interval_secs)).await;
                         continue;
                     }
                 };
-                
+
                 match coins::table
                     .select((coins::columns::id, coins::columns::symbol))
                     .load::<(Uuid, String)>(&mut conn)
@@ -80,7 +85,7 @@ pub fn start_price_aggregator(pool: Arc<DbPool>) {
                     Ok(coins) => coins,
                     Err(e) => {
                         tracing::error!("❌ Failed to load coins from DB: {}", e);
-                        time::sleep(Duration::from_secs(10)).await;
+                        time::sleep(Duration::from_secs(interval_secs)).await;
                         continue;
                     }
                 }
@@ -145,8 +150,8 @@ pub fn start_price_aggregator(pool: Arc<DbPool>) {
                 }
             }
 
-            tracing::info!("⏳ Sleeping for 10 seconds before next cycle...");
-            time::sleep(Duration::from_secs(10)).await;
+            tracing::info!("⏳ Sleeping for {} seconds before next cycle...", interval_secs);
+            time::sleep(Duration::from_secs(interval_secs)).await;
         }
     });
 }
