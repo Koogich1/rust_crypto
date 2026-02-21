@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY Cargo.toml Cargo.lock ./
+COPY src ./src
 
 RUN cargo chef prepare --recipe-path recipe.json
 
@@ -31,7 +32,8 @@ COPY src ./src
 COPY migrations ./migrations
 COPY diesel.toml ./
 
-COPY --from=chef /app/recipe.json recipe.json
+# Копируем рецепт из chef
+COPY --from=chef /app/recipe.json ./recipe.json
 
 RUN cargo chef cook --release --recipe-path recipe.json
 
