@@ -4,7 +4,7 @@ services:
     container_name: crypto_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_USER: ${DB_USER:-crypto_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_DB: ${DB_NAME:-crypto_api}
     volumes:
@@ -14,20 +14,20 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 384M
         reservations:
-          memory: 256M
+          memory: 192M
     command: >
       postgres
-      -c shared_buffers=128MB
-      -c effective_cache_size=384MB
-      -c work_mem=8MB
+      -c shared_buffers=64MB
+      -c effective_cache_size=256MB
+      -c work_mem=4MB
       -c maintenance_work_mem=32MB
       -c max_connections=50
       -c checkpoint_timeout=15min
-      -c wal_buffers=16MB
+      -c wal_buffers=4MB
       -c random_page_cost=1.1
-      -c effective_io_concurrency=200
+      -c effective_io_concurrency=100
 
   app:
     build:
@@ -38,7 +38,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgres://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-crypto_api}
+      DATABASE_URL: postgres://${DB_USER:-crypto_user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-crypto_api}
       RUST_LOG: ${RUST_LOG:-info}
       CRYPTO_API_KEY: ${CRYPTO_API_KEY:-}
       API_SECRET_TOKEN: ${API_SECRET_TOKEN:-}
@@ -49,7 +49,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 384M
         reservations:
           memory: 128M
     healthcheck:
