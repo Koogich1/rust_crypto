@@ -14,20 +14,20 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
         reservations:
-          memory: 192M
+          memory: 256M
     command: >
       postgres
-      -c shared_buffers=64MB
-      -c effective_cache_size=256MB
-      -c work_mem=4MB
-      -c maintenance_work_mem=32MB
+      -c shared_buffers=128MB
+      -c effective_cache_size=384MB
+      -c work_mem=8MB
+      -c maintenance_work_mem=64MB
       -c max_connections=50
       -c checkpoint_timeout=15min
-      -c wal_buffers=4MB
+      -c wal_buffers=16MB
       -c random_page_cost=1.1
-      -c effective_io_concurrency=100
+      -c effective_io_concurrency=200
 
   app:
     build:
@@ -49,9 +49,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 384M
+          memory: 512M
         reservations:
-          memory: 128M
+          memory: 256M
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
       interval: 30s
