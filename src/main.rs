@@ -17,6 +17,7 @@ use crate::app::create_app;
 use crate::pool::create_pool;
 use std::sync::Arc;
 use crate::services::price_aggregator::{start_price_aggregator, init_coins};
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 #[cfg(test)]
 mod tests;
@@ -27,12 +28,22 @@ struct Message {
     content: String,
 }
 
+const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
+
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
+
+    // Запускаем миграции
+    let mut conn = diesel::PgConnection::establish(&database_url)
+        .expect("Failed to connect to database");
+    MIGRATIONS
+        .run(&mut conn)
+        .expect("Failed to run migrations");
+    tracing::info!("✅ Migrations applied successfully");
 
     let pool = create_pool(&database_url);
     let pool_arc = Arc::new(pool);
@@ -42,10 +53,10 @@ async fn main() {
         tracing::error!("❌ Failed to initialize coins: {}", e);
     }
 
-    // Запускаем агрегатор цен (собирает цены каждые 60 секунд)
+    // Запускаем агрегатор цен (собирает цены каждые 10 секунд)
     start_price_aggregator(pool_arc.clone());
 
-    let app = create_app(pool_arc.clone());  
+    let app = create_app(pool_arc.clone());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     info!("Starting server on {}", addr);
