@@ -1,6 +1,7 @@
 # Rust
 /target/
 **/target/
+!target/release/axum-tracing-example
 
 # Environment
 .env
