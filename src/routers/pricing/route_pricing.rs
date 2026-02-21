@@ -19,6 +19,11 @@ pub fn route_pricing() -> Router {
     Router::new()
         .route("/prices", get(get_prices))
         .route("/prices/history", get(get_price_history))
+        .route("/health", get(health_check))
+}
+
+async fn health_check() -> Json<serde_json::Value> {
+    Json(serde_json::json!({ "status": "ok" }))
 }
 
 async fn get_prices(

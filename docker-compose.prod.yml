@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: crypto_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-crypto_api}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - crypto_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c effective_cache_size=384MB
+      -c work_mem=8MB
+      -c maintenance_work_mem=32MB
+      -c max_connections=50
+      -c checkpoint_timeout=15min
+      -c wal_buffers=16MB
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crypto_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-crypto_api}
+      RUST_LOG: ${RUST_LOG:-info}
+      CRYPTO_API_KEY: ${CRYPTO_API_KEY:-}
+      API_SECRET_TOKEN: ${API_SECRET_TOKEN:-}
+    depends_on:
+      - db
+    networks:
+      - crypto_network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pg_data:
+
+networks:
+  crypto_network:
+    driver: bridge
