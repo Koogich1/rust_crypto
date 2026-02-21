@@ -49,6 +49,7 @@ diesel::table! {
         source -> Varchar,
         timestamp -> Timestamptz,
         created_at -> Timestamptz,
+        received_at -> Timestamptz,
     }
 }
 

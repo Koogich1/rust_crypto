@@ -4,6 +4,7 @@ mod db;
 mod routers;
 mod app;
 mod pool;
+mod services;
 
 use log::info;
 use serde::{Deserialize, Serialize};
@@ -14,6 +15,7 @@ use std::env;
 use crate::app::create_app;
 use crate::pool::create_pool;
 use std::sync::Arc;
+use crate::services::price_aggregator::{start_price_aggregator, init_coins};
 
 #[cfg(test)]
 mod tests;
@@ -32,8 +34,17 @@ async fn main() {
         .expect("DATABASE_URL must be set");
 
     let pool = create_pool(&database_url);
-    
-    let app = create_app(Arc::new(pool));  
+    let pool_arc = Arc::new(pool);
+
+    // Инициализируем монеты (создаём, если нет)
+    if let Err(e) = init_coins(&pool_arc) {
+        tracing::error!("❌ Failed to initialize coins: {}", e);
+    }
+
+    // Запускаем агрегатор цен (собирает цены каждые 60 секунд)
+    start_price_aggregator(pool_arc.clone());
+
+    let app = create_app(pool_arc.clone());  
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     info!("Starting server on {}", addr);

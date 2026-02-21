@@ -16,7 +16,8 @@ pub struct PriceSnapshot {
     pub volume_24h: BigDecimal,
     pub market_cap_usd: BigDecimal,
     pub source: String,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,         // время из API (когда цена была актуальна)
+    pub received_at: DateTime<Utc>,       // когда ответ пришёл от источника
     pub created_at: DateTime<Utc>,
 }
 
@@ -30,4 +31,5 @@ pub struct NewPriceSnapshot<'a> {
     pub market_cap_usd: BigDecimal,
     pub source: &'a str,
     pub timestamp: DateTime<Utc>,
+    pub received_at: DateTime<Utc>,
 }
