@@ -18,6 +18,7 @@ use crate::pool::create_pool;
 use std::sync::Arc;
 use crate::services::price_aggregator::{start_price_aggregator, init_coins};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use diesel::prelude::*;
 
 #[cfg(test)]
 mod tests;
@@ -38,10 +39,10 @@ async fn main() {
         .expect("DATABASE_URL must be set");
 
     // Запускаем миграции
-    let mut conn = diesel::PgConnection::establish(&database_url)
+    let mut conn = PgConnection::establish(&database_url)
         .expect("Failed to connect to database");
     MIGRATIONS
-        .run(&mut conn)
+        .run_pending(&mut conn)
         .expect("Failed to run migrations");
     tracing::info!("✅ Migrations applied successfully");
 
