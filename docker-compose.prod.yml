@@ -45,7 +45,6 @@ services:
     environment:
       DATABASE_URL: postgres://${DB_USER:-crypto_user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-crypto_api}
       RUST_LOG: ${RUST_LOG:-info}
-      CRYPTO_API_KEY: ${CRYPTO_API_KEY:-}
       API_SECRET_TOKEN: ${API_SECRET_TOKEN:-}
     depends_on:
       db:
