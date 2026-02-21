@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use reqwest;
 use std::time::Duration;
+use std::env;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CoinGeckoPrice {
@@ -56,10 +57,15 @@ pub async fn fetch_prices(symbols: &[&str]) -> Result<CoinGeckoResponse, reqwest
         return Ok(HashMap::new());
     }
 
-    let url = format!(
+    let mut url = format!(
         "https://api.coingecko.com/api/v3/simple/price?ids={}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true",
         ids.join(",")
     );
+
+    // Добавляем API ключ если он есть в окружении (query parameter: x_cg_demo_api_key)
+    if let Ok(api_key) = env::var("CRYPTO_API_KEY") {
+        url.push_str(&format!("&x_cg_demo_api_key={}", api_key));
+    }
 
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(10))
@@ -67,7 +73,7 @@ pub async fn fetch_prices(symbols: &[&str]) -> Result<CoinGeckoResponse, reqwest
         .build()?;
 
     let response = client.get(&url).send().await?;
-    
+
     // Проверяем статус и возвращаем ошибку если нужно
     let response = response.error_for_status()?;
 

@@ -145,8 +145,8 @@ pub fn start_price_aggregator(pool: Arc<DbPool>) {
                 }
             }
 
-            tracing::info!("⏳ Sleeping for 60 seconds before next cycle...");
-            time::sleep(Duration::from_secs(60)).await;
+            tracing::info!("⏳ Sleeping for 10 seconds before next cycle...");
+            time::sleep(Duration::from_secs(10)).await;
         }
     });
 }
