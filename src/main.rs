@@ -5,6 +5,7 @@ mod routers;
 mod app;
 mod pool;
 mod services;
+mod middleware;
 
 use log::info;
 use serde::{Deserialize, Serialize};
