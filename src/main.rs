@@ -17,8 +17,6 @@ use crate::app::create_app;
 use crate::pool::create_pool;
 use std::sync::Arc;
 use crate::services::price_aggregator::{start_price_aggregator, init_coins};
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
-use diesel::prelude::*;
 
 #[cfg(test)]
 mod tests;
@@ -29,22 +27,12 @@ struct Message {
     content: String,
 }
 
-const MIGRATIONS: EmbeddedMigrations = embed_migrations!("migrations");
-
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
 
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
-
-    // Запускаем миграции
-    let mut conn = PgConnection::establish(&database_url)
-        .expect("Failed to connect to database");
-    MIGRATIONS
-        .run_pending(&mut conn)
-        .expect("Failed to run migrations");
-    tracing::info!("✅ Migrations applied successfully");
 
     let pool = create_pool(&database_url);
     let pool_arc = Arc::new(pool);
