@@ -1,0 +1,7 @@
+# Diesel config for Bybit database
+[print_schema]
+file = "src/bybit/schema.rs"
+custom_type_derives = ["diesel::query_builder::QueryId", "Clone"]
+
+[migrations_directory]
+dir = "migrations_bybit"

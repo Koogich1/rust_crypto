@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-crypto_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-CHANGE_ME_IN_PRODUCTION}
       POSTGRES_DB: ${DB_NAME:-crypto_api}
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -34,6 +34,30 @@ services:
       -c random_page_cost=1.1
       -c effective_io_concurrency=200
 
+  db_bybit:
+    image: postgres:15-alpine
+    container_name: crypto_bybit_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-crypto_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-CHANGE_ME_IN_PRODUCTION}
+      POSTGRES_DB: ${BYBIT_DB_NAME:-bybit_db}
+    volumes:
+      - pg_data_bybit:/var/lib/postgresql/data
+    networks:
+      - crypto_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-crypto_user} -d ${BYBIT_DB_NAME:-bybit_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
   app:
     build:
       context: .
@@ -43,11 +67,18 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: postgres://${DB_USER:-crypto_user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-crypto_api}
+      DATABASE_URL: postgres://${DB_USER:-crypto_user}:${DB_PASSWORD:-CHANGE_ME_IN_PRODUCTION}@db:5432/${DB_NAME:-crypto_api}
+      BYBIT_DATABASE_URL: postgres://${DB_USER:-crypto_user}:${DB_PASSWORD:-CHANGE_ME_IN_PRODUCTION}@db_bybit:5432/${BYBIT_DB_NAME:-bybit_db}
+      COINGECKO_API_KEY: ${COINGECKO_API_KEY:-}
+      BYBIT_API_KEY: ${BYBIT_API_KEY:-}
+      BYBIT_SECRET: ${BYBIT_SECRET:-}
+      BYBIT_API_URL: ${BYBIT_API_URL:-https://api.bybit.com}
       RUST_LOG: ${RUST_LOG:-info}
       API_SECRET_TOKEN: ${API_SECRET_TOKEN:-}
     depends_on:
       db:
+        condition: service_healthy
+      db_bybit:
         condition: service_healthy
     networks:
       - crypto_network
@@ -68,6 +99,7 @@ services:
 
 volumes:
   pg_data:
+  pg_data_bybit:
 
 networks:
   crypto_network:

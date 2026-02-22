@@ -1,0 +1,1 @@
+-- Remove received_at column from price_snapshots

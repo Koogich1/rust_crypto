@@ -21,3 +21,12 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features=["env-filter"] }
 dotenvy = "0.15"
 reqwest = { version = "0.12", features = ["json"] }
+diesel_migrations = "2.3.1"
+
+[[bin]]
+name = "migrate_bybit"
+path = "src/bin/migrate_bybit.rs"
+
+[[bin]]
+name = "migrate_all"
+path = "src/bin/migrate_all.rs"
