@@ -54,7 +54,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
 COPY migrations ./migrations
+COPY migrations_bybit ./migrations_bybit
 COPY diesel.toml ./
+COPY diesel_bybit.toml ./
 
 # Копируем скомпилированные зависимости из planner
 COPY --from=planner /app/target ./target
